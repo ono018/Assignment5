@@ -1,0 +1,77 @@
+---
+title: "Assignment 5"
+author: "Oyvind Nordgard"
+date: "25 november 2018"
+output: html_document
+---
+
+## Obligatory assignment 5 - Child Birth Data
+```{r setup, message=FALSE}
+getwd()
+setwd("D:/Github/assignment5")
+rm(list=ls())
+library(readr)
+library(tidyverse)
+library(mosaic)
+```
+##Importing data using read_fwf
+```{r}
+birth_data2017 <- read_fwf("Nat2017PublicUS.c20180516.r20180808.txt", 
+         fwf_positions(start = c(13,475,504),
+                       end = c(14,475,507),
+                       col_names = c("month","gender","weight")))
+
+```
+##view & changing class
+```{r}
+str(birth_data2017)
+head(birth_data2017)
+birth_data2017$month <- as.numeric(birth_data2017$month)
+birth_data2017$gender<-as.factor(birth_data2017$gender)
+birth_data2017$weight<-as.numeric(birth_data2017$weight)
+tail(birth_data2017)
+length(birth_data2017$weight)
+```
+
+##Cleaning data
+
+```{r}
+birth_data2017%>% summarise(sum(birth_data2017$weight == 9999))
+birth_data<- birth_data2017 %>% filter(weight < 9999)
+glimpse(birth_data)
+str(birth_data)
+head(birth_data,10)
+```
+
+## Working with data
+```{r}
+summary(birth_data)
+names(birth_data)
+mean(birth_data$weight)
+favstats(birth_data$weight)
+favstats(birth_data$month)
+favstats(~weight|month, data = birth_data)
+summary(lm(weight~as.factor(month), data = birth_data))
+```
+
+#Tally boys & grils
+```{r}
+tally(birth_data$gender)
+tally(birth_data$gender, format = "percent")
+```
+#Mean weight
+```{r}
+favstats(birth_data$weight)
+```
+
+##Illustrating
+```{r}
+ggplot(birth_data,aes(x=weight))+geom_density()+
+  labs(title="density of birth")
+favstats(birth_data$weight)
+ggplot()+geom_density(data= birth_data, aes(x=weight, group=gender, 
+  fill =gender),alpha=0.5,adjust=2)+
+  labs(title= "Weight at birth")+
+  xlab("Birth Weight")+ ylab("Density")
+       
+```
